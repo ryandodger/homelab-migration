@@ -1,0 +1,15 @@
+---
+services:
+  filebrowser:
+    image: filebrowser/filebrowser
+    container_name: filebrowser
+    environment:
+      - PUID=1000 #"id $user" to find your uid & gid values
+      - PGID=1000
+    volumes:
+      - /mnt/NAS:/srv #change 'user' to the name of your account
+      - /home/ryan-dodger/appdata/filebrowser:/database #this will create the filebrowser.db file
+      - /home/ryan-dodger/appdata/filebrowser:/config #this will create the settings.json file
+    ports:
+      - 8081:80 #default port is 8080, change as needed. Don't change the right hand side port (port 80)
+    restart: unless-stopped

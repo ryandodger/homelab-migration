@@ -12,7 +12,7 @@ services:
       - PASS= rycloud
       - RPC_WHITELIST_ENABLED= 127.168.1.*
     volumes:
-      - /home/ryan-dodger/appdata/transmission/data:/config
+      - /home/serverkg/appdata/transmission/data:/config
       - /mnt/NAS/Transmission:/downloads #optional
      #- /path/to/watch/folder:/watch #optional
     #ports:

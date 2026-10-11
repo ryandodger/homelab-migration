@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    user: 1000:1000 
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - /home/ryan-dodger/appdata/jellyfin/config:/config
+      - /home/ryan-dodger/cache:/cache
+      - /mnt/NAS/Video:/media:ro # Change /path/to/your/media to your real media folder
+    # Optional: Uncomment the lines below if you are using Intel/AMD hardware acceleration
+    # devices:
+    #   - /dev/dri:/dev/dri

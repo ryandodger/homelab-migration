@@ -21,9 +21,9 @@ if ! command -v docker &> /dev/null; then
 fi
 
 echo "=== 3. Restoring Docker Appdata Bind Mounts ==="
-if [ -f /mnt/NAS/backups/appdata.tar.gz ]; then
+if [ -f /mnt/NAS/Backup/appdata.tar.gz ]; then
   mkdir -p /home/Serverkg/appdata
-  tar -xvzf /mnt/NAS/backups/appdata.tar.gz -C /home/Serverkg/
+  tar -xvzf /mnt/NAS/Backup/appdata.tar.gz -C /home/Serverkg/
   chown -R Serverkg:Serverkg /home/Serverkg/appdata
 fi
 

@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  jellyplex-watched:
+    image: luigi311/jellyplex-watched:latest
+    container_name: jellyplex-watched
+    restart: unless-stopped
+    volumes:
+      - ./config.yaml:/home/ryan-dodger/appdata/config.yaml:ro
+    environment:
+      - TZ=UTC # Change to your local timezone if needed (e.g. America/New_York)

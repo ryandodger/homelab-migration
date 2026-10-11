@@ -6,6 +6,6 @@ services:
     container_name: jellyplex-watched
     restart: unless-stopped
     volumes:
-      - ./config.yaml:/home/ryan-dodger/appdata/config.yaml:ro
+      - ./config.yaml:/home/serverkg/appdata/config.yaml:ro
     environment:
       - TZ=UTC # Change to your local timezone if needed (e.g. America/New_York)

@@ -1,0 +1,18 @@
+services:
+  plex:
+    container_name: plex
+    image: plexinc/pms-docker:latest
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - TZ=America/New_York       # Replace with your local timezone
+      - PLEX_UID=1000             # Replace with your system User ID (run `id -u`)
+      - PLEX_GID=1000             # Replace with your system Group ID (run `id -g`)
+      - VERSION=docker
+      - PLEX_CLAIM=claim-xxxxxxx  # Optional: Enter a token from https://www.plex.tv/claim
+    volumes:
+      - /home/ryan-dodger/appdata/plex:/config          # Path where Plex will store its database and metadata
+      - /home/ryan-dodger/appdata/plex/transcode:/transcode    # Temporary space for active streams
+      - /mnt/NAS/Video:/data      # Replace with the actual absolute path to your media files
+    devices:
+      - /dev/dri:/dev/dri         # Optional: Required if you use Intel Hardware Acceleration (QuickSync)

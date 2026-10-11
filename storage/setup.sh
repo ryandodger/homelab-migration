@@ -20,9 +20,11 @@ if ! command -v docker &> /dev/null; then
   usermod -aG docker Serverkg
 fi
 
-echo "=== 3. Restoring Persistent Docker Volumes (if backup exists) ==="
-if [ -f /mnt/NAS/backups/docker_volumes.tar.gz ]; then
-  tar -xvzf /mnt/NAS/backups/docker_volumes.tar.gz -C /var/lib/docker/
+echo "=== 3. Restoring Docker Appdata Bind Mounts ==="
+if [ -f /mnt/NAS/backups/appdata.tar.gz ]; then
+  mkdir -p /home/Serverkg/appdata
+  tar -xvzf /mnt/NAS/backups/appdata.tar.gz -C /home/Serverkg/
+  chown -R Serverkg:Serverkg /home/Serverkg/appdata
 fi
 
 echo "=== 4. Launching Portainer ==="
@@ -36,7 +38,7 @@ docker run -d \
   -v portainer_data:/data \
   portainer/portainer-ce:latest
 
-echo "=== 5. Deploying Container Stacks ==="
+echo "=== 5. Deploying Container Stacks from GitHub Repo ==="
 if [ -f /opt/homelab-migration/docker/docker-compose.yml ]; then
   docker compose -f /opt/homelab-migration/docker/docker-compose.yml up -d
 fi

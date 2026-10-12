@@ -1,22 +1,39 @@
----
+version: "3"
+
 services:
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    volumes:
+      - /yourpath:/gluetun
+    environment:
+      - VPN_SERVICE_PROVIDER=expressvpn
+      - OPENVPN_USER=cd3wfxnhm8xr41e4s3i67ip3
+      - OPENVPN_PASSWORD=rc27z1vjknjlc5qvukux6v8l
+      - SERVER_COUNTRIES=USA
+    ports:
+      - 9091:9091
+      - 51413:51413
+      - 51413:51413/udp
+    restart: unless-stopped
+
   transmission:
     image: lscr.io/linuxserver/transmission:latest
     container_name: transmission
+    network_mode: "service:gluetun"
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
-      - TRANSMISSION_WEB_HOME= #optional
-      - USER= dodgerassa
-      - PASS= rycloud
-      - RPC_WHITELIST_ENABLED= 127.168.1.*
+      - TRANSMISSION_WEB_HOME=
+      - USER=dodgerassa
+      - PASS=rycloud
+      - RPC_WHITELIST_ENABLED=127.168.1.*
     volumes:
       - /home/serverkg/appdata/transmission/data:/config
-      - /mnt/NAS/Transmission:/downloads #optional
-     #- /path/to/watch/folder:/watch #optional
-    #ports:
-      #- 9091:9091
-      #- 51413:51413
-      #- 51413:51413/udp
+      - /mnt/NAS/Transmission:/downloads
     restart: unless-stopped

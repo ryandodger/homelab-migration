@@ -8,8 +8,8 @@ services:
       - PGID=1000
     volumes:
       - /mnt/NAS:/srv #change 'user' to the name of your account
-      - /home/serverkg/appdata/filebrowser:/database #this will create the filebrowser.db file
-      - /home/serverkg/appdata/filebrowser:/config #this will create the settings.json file
+      - ${HOME}/appdata/filebrowser:/database #this will create the filebrowser.db file
+      - ${HOME}/appdata/filebrowser:/config #this will create the settings.json file
     ports:
       - 8081:80 #default port is 8080, change as needed. Don't change the right hand side port (port 80)
     restart: unless-stopped

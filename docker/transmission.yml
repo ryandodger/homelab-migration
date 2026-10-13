@@ -9,7 +9,7 @@ services:
     devices:
       - /dev/net/tun:/dev/net/tun
     volumes:
-      - /yourpath:/gluetun
+      - ${HOME}/appdata/gluetun:/gluetun
     environment:
       - VPN_SERVICE_PROVIDER=expressvpn
       - OPENVPN_USER=cd3wfxnhm8xr41e4s3i67ip3
@@ -34,6 +34,6 @@ services:
       - PASS=rycloud
       - RPC_WHITELIST_ENABLED=127.168.1.*
     volumes:
-      - /home/ryan-dodger/appdata/transmission/data:/config
+      - ${HOME}/appdata/transmission/data:/config
       - /mnt/NAS/Transmission:/downloads
     restart: unless-stopped

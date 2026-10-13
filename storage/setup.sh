@@ -22,9 +22,9 @@ fi
 
 echo "=== 3. Restoring Docker Appdata Bind Mounts ==="
 if [ -f /mnt/NAS/Backup/appdata.tar.gz ]; then
-  mkdir -p /home/Serverkg/appdata
-  tar -xvzf /mnt/NAS/Backup/appdata.tar.gz -C /home/Serverkg/
-  chown -R Serverkg:Serverkg /home/Serverkg/appdata
+  mkdir -p "${HOME}/appdata"
+  tar -xvzf /mnt/NAS/Backup/appdata.tar.gz -C "${HOME}"
+  chown -R Serverkg:Serverkg "${HOME}/appdata"
 fi
 
 echo "=== 4. Launching Portainer ==="

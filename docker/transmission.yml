@@ -16,7 +16,7 @@ services:
       - OPENVPN_PASSWORD=rc27z1vjknjlc5qvukux6v8l
       - SERVER_COUNTRIES=USA
     ports:
-      - 9091:9091
+      - 9099:9099
       - 51413:51413
       - 51413:51413/udp
     restart: unless-stopped
@@ -34,6 +34,6 @@ services:
       - PASS=rycloud
       - RPC_WHITELIST_ENABLED=127.168.1.*
     volumes:
-      - /home/serverkg/appdata/transmission/data:/config
+      - /home/ryan-dodger/appdata/transmission/data:/config
       - /mnt/NAS/Transmission:/downloads
     restart: unless-stopped

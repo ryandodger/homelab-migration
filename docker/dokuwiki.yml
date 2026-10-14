@@ -7,7 +7,7 @@ services:
       - PGID=1000
       - TZ=Etc/UTC
     volumes:
-      - ./web_data:/config
+      - ${HOME}/appdata/dokuwiki:/config
     ports:
       - "8080:80"
     restart: unless-stopped

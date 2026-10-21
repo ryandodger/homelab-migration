@@ -1,0 +1,26 @@
+services:
+  app:
+    image: ainullcode/borg-ui:latest
+    container_name: borg-web-ui
+    restart: unless-stopped
+    ports:
+      - "${PORT:-7081}:${PORT:-7081}"
+    volumes:
+      - borg_data:/data
+      - borg_cache:/home/borg/.cache/borg
+      - /etc/localtime:/etc/localtime:ro
+      # Replace /home/youruser with the host path you want to back up locally
+      - ${LOCAL_STORAGE_PATH:-/home/youruser}:/local:rw
+    environment:
+      - PORT=${PORT:-7081}
+      - PUID=${PUID:-1001}
+      - PGID=${PGID:-1001}
+      - TZ=${TZ:-UTC}
+      - LOCAL_MOUNT_POINTS=${LOCAL_MOUNT_POINTS:-/local}
+      - REDIS_HOST=disabled
+    # Uncomment the following line if you plan to use SSHFS pull mode for remote backups
+    # privileged: true 
+
+volumes:
+  borg_data:
+  borg_cache:

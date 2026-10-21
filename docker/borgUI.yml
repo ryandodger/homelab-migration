@@ -15,8 +15,8 @@ services:
       - ${HOME}/appdata:/local:rw
     environment:
       - PORT=${PORT:-7081}
-      - PUID=${PUID:-1001}
-      - PGID=${PGID:-1001}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
       - TZ=${TZ:-UTC}
       - LOCAL_MOUNT_POINTS=${LOCAL_MOUNT_POINTS:-/local}
       - REDIS_HOST=disabled

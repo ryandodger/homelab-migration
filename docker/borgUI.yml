@@ -6,11 +6,13 @@ services:
     ports:
       - "${PORT:-7081}:${PORT:-7081}"
     volumes:
-      - borg_data:/data
-      - borg_cache:/home/borg/.cache/borg
+      # Stores Borg UI configuration and internal databases
+      - ${HOME}/appdata/borg-ui/data:/data
+      # Stores the local Borg cache to speed up backup chunking
+      - ${HOME}/appdata/borg-ui/cache:/home/borg/.cache/borg
       - /etc/localtime:/etc/localtime:ro
-      # Replace /home/youruser with the host path you want to back up locally
-      - ${LOCAL_STORAGE_PATH:-/home/youruser}:/local:rw
+      # This maps your entire appdata directory so Borg UI can back up your other containers
+      - ${HOME}/appdata:/local:rw
     environment:
       - PORT=${PORT:-7081}
       - PUID=${PUID:-1001}
@@ -18,9 +20,4 @@ services:
       - TZ=${TZ:-UTC}
       - LOCAL_MOUNT_POINTS=${LOCAL_MOUNT_POINTS:-/local}
       - REDIS_HOST=disabled
-    # Uncomment the following line if you plan to use SSHFS pull mode for remote backups
-    # privileged: true 
-
-volumes:
-  borg_data:
-  borg_cache:
+    # privileged: true # Uncomment only if using SSHFS remote pull mode

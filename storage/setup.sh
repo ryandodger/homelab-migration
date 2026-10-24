@@ -1,46 +1,68 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/bash
+set -e
 
-echo "=== 1. Executing Storage & Network Share Setup ==="
-/opt/homelab-migration/storage/setup-shares.sh
+echo "=== Starting Post-Install Setup for HP Elite 8300 SFF ==="
 
-echo "=== 2. Installing Official Docker Engine ==="
-if ! command -v docker &> /dev/null; then
-  install -m 0755 -d /etc/apt/keyrings
-  curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
-  chmod a+r /etc/apt/keyrings/docker.asc
+# 1. Configure Intel CPU Power Governor (Intel P-State)
+echo "Configuring CPU governor to powersave..."
+echo 'GOVERNOR="powersave"' > /etc/default/cpufrequtils
+systemctl restart cpufrequtils || true
 
-  echo \
-    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
-    $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-    tee /etc/apt/sources.list.d/docker.list > /dev/null
+# 2. Enable TLP Power Management
+echo "Enabling TLP..."
+systemctl enable tlp
+systemctl start tlp
 
-  apt-get update
-  apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-  usermod -aG docker Serverkg
+# 3. Create PowerTOP Auto-Tune Systemd Service
+echo "Setting up PowerTOP auto-tune..."
+cat << 'EOF' > /etc/systemd/system/powertop.service
+[Unit]
+Description=PowerTOP auto tune
+After=syslog.target network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/powertop --auto-tune
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable powertop.service
+systemctl start powertop.service
+
+# 4. Force PCIe Active State Power Management (ASPM) in GRUB
+echo "Enabling PCIe ASPM in GRUB..."
+if ! grep -q "pcie_aspm=force" /etc/default/grub; then
+    sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="/GRUB_CMDLINE_LINUX_DEFAULT="pcie_aspm=force /' /etc/default/grub
+    update-grub
 fi
 
-echo "=== 3. Restoring Docker Appdata Bind Mounts ==="
-if [ -f /mnt/NAS/Backup/appdata.tar.gz ]; then
-  mkdir -p "${HOME}/appdata"
-  tar -xvzf /mnt/NAS/Backup/appdata.tar.gz -C "${HOME}"
-  chown -R Serverkg:Serverkg "${HOME}/appdata"
+# 5. Configure Hard Drive Spindown (15-min idle) in /etc/hdparm.conf
+echo "Configuring disk spindown timeouts..."
+if ! grep -q "spindown_time = 180" /etc/hdparm.conf; then
+cat << 'EOF' >> /etc/hdparm.conf
+
+# Storage drive spindown settings (15 mins = 180)
+/dev/disk/by-label/STORAGE {
+    spindown_time = 180
+    apm = 127
+}
+EOF
 fi
 
-echo "=== 4. Launching Portainer ==="
-docker volume create portainer_data || true
-docker run -d \
-  -p 8000:8000 \
-  -p 9443:9443 \
-  --name portainer \
-  --restart=always \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v portainer_data:/data \
-  portainer/portainer-ce:latest
-
-echo "=== 5. Deploying Container Stacks from GitHub Repo ==="
-if [ -f /opt/homelab-migration/docker/docker-compose.yml ]; then
-  docker compose -f /opt/homelab-migration/docker/docker-compose.yml up -d
+# 6. Enable Wake-on-LAN (WoL) on Primary Ethernet
+NIC=$(ip -o link show | awk -F': ' '$2 !~ "^lo|^veth|^docker" {print $2; exit}')
+if [ -n "$NIC" ]; then
+    echo "Enabling Wake-on-LAN on $NIC..."
+    ethtool -s "$NIC" wol g || true
 fi
 
-echo "=== Ghidorah Provisioning Complete ==="
+# 7. Set Low Swappiness for 16GB RAM
+echo "Optimizing memory swappiness..."
+echo "vm.swappiness=10" > /etc/sysctl.d/99-swappiness.conf
+sysctl -p /etc/sysctl.d/99-swappiness.conf
+
+echo "=== Setup Complete! Please reboot the server. ==="
